@@ -1,0 +1,46 @@
+;EXPERIMENT NO:5 After making sure that Problem statement 1, 2 and 3 works properly,
+				;write an ALP to get data from the PC and transfer it to the PC (Both
+				;side communication) at various baud rate.
+;NAME OF STUDENT:Pranali Krishna Ganesh.
+;ROLL NO.:213066
+;BATCH:C3.
+;DATE OF PERFORMANCE:06/03/2024.
+
+		ORG 0000H  ; Set the origin of the program memory to address 0000H
+    MOV SCON,#50H  ; Move the hexadecimal value 50H into the Special Function Register (SFR) SCON.
+    MOV TMOD,#20H  ; Move the hexadecimal value 20H into the Timer Mode (TMOD) SFR.
+    MOV TH1,#-3    ; Move the value -3 into the Timer 1 High (TH1) SFR.
+                   ; The comment indicates that this value is calculated as 256-3.
+				   
+    SETB TR1       ; Set the TR1 bit.
+    MOV DPTR,#MES  ; Move the address of the MES label into the data pointer (DPTR).
+	
+L1:                ; Label L1
+    CLR A          ; Clear the accumulator register A.
+    MOVC A,@A+DPTR ; Move the code byte at the address in DPTR to accumulator A.
+                   ; This likely reads a character from the MES string.
+    JZ REC         ; Jump to label REC if the accumulator A is zero (end of string).
+    MOV SBUF,A     ; Move the value in accumulator A to the Serial Buffer (SBUF) SFR.
+    JNB TI,$       ; Jump to the current location if the Transmit Interrupt (TI) flag is not set.
+    CLR TI         ; Clear the Transmit Interrupt (TI) flag.
+    INC DPTR       ; Increment the data pointer (DPTR) to point to the next character in the MES string.
+    SJMP L1        ; Unconditional jump back to label L1.
+                   ; This creates a loop to continuously transmit characters.
+				   
+				   
+REC:               ; Label REC
+    CLR RI         ; Clear the Receive Interrupt (RI) flag.
+    JNB RI,$       ; Jump to the current location if the Receive Interrupt (RI) flag is not set.
+                   ; This waits for the RI flag to indicate that a character has been received.
+    MOV A,SBUF     ; Move the value in the Serial Buffer (SBUF) SFR to accumulator A.
+    MOV P2,A       ; Move the value in accumulator A to Port 2 (P2).
+    SJMP REC       ; Unconditional jump back to label REC.                 
+    ORG 500H       ; Set the origin of the program memory to address 500H
+		
+		
+MES:               ; Label MES
+    DB "WELCOME TO VIIT ",0X0A,0X0D ; Define a string terminated with 0X0A (line feed) and 0X0D (carriage return).
+    DB "NAME:PranaliKrishna Ganesh",0X0A,0X0D
+    DB "ROLL NO: 213066",0X0A,0X0D  
+    DB "RECEIVED PROGRAM",0X0A,0X0D,0 ; End of string marker
+    END

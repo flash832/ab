@@ -1,0 +1,36 @@
+;EXPERIMENT NO:5 Write an Assembly language program to initialize UART in Mode 1
+                ;and Mode 3 to transmit the message “ WELCOME TO VIIT” to
+                ;PC using RS 232 at various baud rates (9600, 4800, 2400) and display
+                ;message on HyperTerminal or Tera terminal of PC. Write down the
+                ;calculation of Baud Rate. 
+;NAME OF STUDENT:Pranali Kriahna Ganesh.
+;ROLL NO.:213066
+;BATCH:C3
+;DATE OF PERFORMANCE:06/03/2024.
+
+    ORG 0000H         ; Set origin address to 0000H
+    MOV SCON,#50H     ; Initialize serial control register
+    MOV TMOD,#20H     ; Set timer mode
+    MOV TH1,#-3       ; Load baud rate for serial communication
+    SETB TR1          ; Start Timer 1
+
+START:                ; Start of main program
+    MOV DPTR,#MES     ; Load address of message
+L1:                   ; Loop to send characters
+    CLR A             ; Clear accumulator
+    MOVC A,@A+DPTR    ; Move character from code memory to accumulator
+    JZ START          ; If character is null, go back to START
+    MOV SBUF,A        ; Move accumulator value to serial buffer
+    JNB TI,$          ; Wait until transmission is complete
+    CLR TI            ; Clear transmission flag
+    INC DPTR          ; Increment data pointer
+    SJMP L1           ; Jump back to L1
+
+ORG 500H              ; Set origin address to 500H (memory location of message)
+MES:                  ; Start of message
+
+    DB "WELCOME TO VIIT ",0X0A,0X0D              ; Display welcome message with newline and carriage return
+    DB "NAME:Pranali Krishna Ganesh",0X0A,0X0D   ; Display name with newline and carriage return
+    DB "ROLL NO: 213066",0X0A,0X0D,0             ; Display roll number with newline and carriage return and null terminator
+
+END                                              ; End of program

@@ -1,0 +1,45 @@
+/*exp_8 Interfacing of lcd with avr
+NAME : SAURABH SHETKAR
+roll no. 213052
+Batch : c3
+Date ; 17/4/24
+ */
+#define F_CPU 8000000UL /* Define CPU Frequency e.g. here its 8MHz */
+#include <avr/io.h> /* Include AVR std. library file */
+#include <util/delay.h> /* Include inbuilt defined Delay header file */
+//#include <string.h>
+#include <stdio.h>
+#include "lcd.h"
+#define degree_symbol 0xdf
+void ADC_Init(){
+DDRA = 0x00; /* Make ADC port as input */
+ADCSRA = 0x87; /* Enable ADC, with freq/128 */
+ADMUX = 0x40; /* ADC channel: 0 */
+}
+int ADC_Read(char channel)
+{
+ADMUX = 0x40 | (channel & 0x07); /* set input channel to read */
+ADCSRA |= (1<<ADSC); /* Start ADC conversion */
+while (!(ADCSRA & (1<<ADIF))); /* Wait until end of conversion by polling ADC
+interrupt flag */
+ADCSRA |= (1<<ADIF); /* Clear interrupt flag */
+_delay_ms(1); /* Wait a little bit */
+return ADCW; /* Return ADC word */
+}
+int main()
+{
+char Temperature[10];
+float celsius;
+DDRB=0XFF;
+LCD_Init(); /* initialize 16x2 LCD*/
+ADC_Init(); /* initialize ADC*/
+while(1)
+{
+LCD_Command(0x80); /*cursor at home position */
+LCD_String("SAURABH SHETKAR");
+LCD_Command(0xc0);
+celsius = (ADC_Read(0)*4.88); // Read channel 0 where LM35 connected,
+5V/1024=4.88mV
+celsius = (celsius/10.00);
+sprintf(Temperature,"T1=%d%cC ", (int)celsius, degree_symbol);/* convert
+integer value to ASCII string */

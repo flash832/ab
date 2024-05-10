@@ -1,3 +1,9 @@
+;EXPERIMENT NO.:03:
+;Interfacing of 16x2 LCD in 8 bit mode with 8051 microcontroller
+;NAME: saurabh shetkar
+;ROLL NO.: 213070
+;DATE: 12/02/2024
+;BATCH: C3
 
 	LCD EQU P0  	;equate port 0 as LCD
 	RS EQU P2.0  	;equate P2.0 as Reg. Select of LCD
